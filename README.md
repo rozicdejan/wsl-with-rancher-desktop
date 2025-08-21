@@ -60,3 +60,17 @@ If Windows features get enabled, it will ask for reboot and auto-resume afterwar
 ### Force immediate reboot when features changed:
 
 .\setup-wsl.ps1 -ForceReboot
+
+## Notes
+
+BIOS VT-x/AMD-V cannot be enabled by any Windows script. This script detects and reports it clearly.
+
+Silent install is used when supported; if not, the script falls back to interactive so you can click through.
+
+After Rancher Desktop installs, first launch may take a minute to initialize the VM; the script doesn’t block on that, but with -ConfigureRancher it will try rdctl if available.
+
+If you want, I can also add:
+
+Creation of a sensible %UserProfile%\.wslconfig (CPU/RAM limits),
+
+A first-run smoke test: docker run hello-world via Rancher Desktop (moby) to confirm Docker API is up.
