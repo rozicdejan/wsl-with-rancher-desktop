@@ -34,7 +34,7 @@ Perfect for developers who want to quickly set up a Linux containerization envir
 
 ### Files Needed
 - This repository's `setup-wsl.ps1` script
-- Rancher Desktop installer (`.msi` or `.exe`) - [Download here](https://github.com/rancher-sandbox/rancher-desktop/releases)
+- Rancher Desktop installer (`.msi` or `.exe`) - [Download here](https://github.com/rancher-sandbox/rancher-desktop/releases) or [here-Mega](https://mega.nz/file/4gRFTIiK#kJ_FhoG_xHgo_rXxTMEAYkZfVwuQb_UMrM6A7GYnP3Q)
 
 > 📁 Place the Rancher Desktop installer in the same folder as the script
 
