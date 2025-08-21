@@ -39,3 +39,24 @@ It is designed for **one-click setup**: detects prerequisites, enables Windows f
    ```powershell
    Set-ExecutionPolicy Bypass -Scope Process -Force
    .\setup-wsl.ps1 -ConfigureRancher
+-ConfigureRancher (optional) tries to set dockerd (moby) and disable Kubernetes automatically using rdctl (best-effort).
+
+If Windows features get enabled, it will ask for reboot and auto-resume afterwards.
+
+## Optional flags
+
+### Offline Ubuntu:
+
+.\setup-wsl.ps1 -OfflineAppx .\Ubuntu_22.04.appx
+
+### Prefer interactive installers:
+
+.\setup-wsl.ps1 -InteractiveInstall
+
+### Skip any extra non-Rancher installer in the folder:
+
+.\setup-wsl.ps1 -SkipAppInstall
+
+### Force immediate reboot when features changed:
+
+.\setup-wsl.ps1 -ForceReboot
