@@ -1,76 +1,189 @@
 # Windows WSL + Ubuntu + Rancher Desktop Setup Script
 
-This repository contains a **PowerShell automation script** (`setup-wsl.ps1`) to prepare a Windows PC for WSL2, install Ubuntu, and then install [Rancher Desktop](https://rancherdesktop.io/) from a local installer.  
-It is designed for **one-click setup**: detects prerequisites, enables Windows features, auto-resumes after reboot, and installs everything with clear status messages.
+A **PowerShell automation script** that prepares your Windows PC for containerized development by setting up WSL2, Ubuntu, and Rancher Desktop in one seamless operation.
 
----
+## 🎯 What This Does
 
-## Features
+This script transforms a fresh Windows machine into a ready-to-go development environment with:
+- **WSL2** (Windows Subsystem for Linux) with Ubuntu distribution
+- **Rancher Desktop** for container management (Docker-compatible)
+- Proper virtualization detection and configuration
+- Automatic recovery from required system reboots
 
-✅ Detects if CPU & BIOS virtualization (VT-x / AMD-V) are enabled  
-✅ Enables required Windows features: **WSL** and **VirtualMachinePlatform**  
-✅ Installs or updates **WSL2 kernel**  
-✅ Installs **Ubuntu** (via `wsl --install` or offline `.appx` if provided)  
-✅ Installs **Rancher Desktop** (MSI/EXE in same folder)  
-✅ Supports **silent install** (falls back to interactive if not supported)  
-✅ Optional auto-config for Rancher Desktop: sets **dockerd (moby)** and disables **Kubernetes**  
-✅ Auto-resumes after reboot if system features required restart  
-✅ Generates a **log file** and end-of-run **summary popup**  
+Perfect for developers who want to quickly set up a Linux containerization environment on Windows without manual configuration steps.
 
----
+## ✨ Key Features
 
-## Requirements
+| Feature | Description |
+|---------|-------------|
+| 🔍 **Smart Detection** | Automatically detects CPU virtualization support and BIOS settings |
+| 🔧 **Windows Features** | Enables WSL and VirtualMachinePlatform features automatically |
+| 🐧 **Ubuntu Installation** | Installs Ubuntu via `wsl --install` or offline `.appx` package |
+| 🐳 **Rancher Desktop** | Installs from local MSI/EXE with silent or interactive mode |
+| ⚙️ **Auto-Configuration** | Optionally configures Rancher to use dockerd (moby) and disable Kubernetes |
+| 🔄 **Reboot Recovery** | Automatically resumes setup after required system restarts |
+| 📝 **Detailed Logging** | Generates comprehensive logs and summary reports |
 
-- Windows 10 2004+ (build 19041) or Windows 11  
-- CPU with **Intel VT-x** or **AMD-V** virtualization support  
-- Virtualization **enabled in BIOS/UEFI**  
-- Administrator privileges to run the script  
-- Rancher Desktop installer (`.msi` or `.exe`) in the same folder as the script  
+## 📋 Prerequisites
 
----
+### System Requirements
+- **OS**: Windows 10 (build 19041+) or Windows 11
+- **CPU**: Intel VT-x or AMD-V virtualization support
+- **BIOS**: Virtualization enabled (VT-x/AMD-V/SVM)
+- **Privileges**: Administrator access required
 
-## Usage
+### Files Needed
+- This repository's `setup-wsl.ps1` script
+- Rancher Desktop installer (`.msi` or `.exe`) - [Download here](https://github.com/rancher-sandbox/rancher-desktop/releases)
 
-1. Clone/download this repo.  
-2. Place your **Rancher Desktop installer** (`Rancher.Desktop-x.y.z.msi` or `.exe`) link to app: https://mega.nz/file/4gRFTIiK#kJ_FhoG_xHgo_rXxTMEAYkZfVwuQb_UMrM6A7GYnP3Q  in the same folder as `setup-wsl.ps1`.  
-3. Open **PowerShell as Administrator**.  
-4. Run:
+> 📁 Place the Rancher Desktop installer in the same folder as the script
 
-   ```powershell
-   Set-ExecutionPolicy Bypass -Scope Process -Force
-   .\setup-wsl.ps1 -ConfigureRancher
--ConfigureRancher (optional) tries to set dockerd (moby) and disable Kubernetes automatically using rdctl (best-effort).
+## 🚀 Quick Start
 
-If Windows features get enabled, it will ask for reboot and auto-resume afterwards.
+### Basic Setup
+```powershell
+# 1. Open PowerShell as Administrator
+# 2. Navigate to the script directory
+# 3. Run the setup
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\setup-wsl.ps1 -ConfigureRancher
+```
 
-## Optional flags
+### Alternative Installation Methods
 
-### Offline Ubuntu:
+#### With Offline Ubuntu Package
+```powershell
+.\setup-wsl.ps1 -ConfigureRancher -OfflineAppx .\Ubuntu_22.04.appx
+```
 
-.\setup-wsl.ps1 -OfflineAppx .\Ubuntu_22.04.appx
+#### Interactive Installation (No Silent Install)
+```powershell
+.\setup-wsl.ps1 -ConfigureRancher -InteractiveInstall
+```
 
-### Prefer interactive installers:
-
-.\setup-wsl.ps1 -InteractiveInstall
-
-### Skip any extra non-Rancher installer in the folder:
-
+#### Minimal Setup (WSL Only)
+```powershell
 .\setup-wsl.ps1 -SkipAppInstall
+```
 
-### Force immediate reboot when features changed:
+## ⚙️ Configuration Options
 
-.\setup-wsl.ps1 -ForceReboot
+### Command Line Parameters
 
-## Notes
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `-ConfigureRancher` | Auto-configures Rancher Desktop with dockerd and disables Kubernetes | Default recommended |
+| `-OfflineAppx <path>` | Install Ubuntu from local `.appx` file instead of online | `-OfflineAppx .\Ubuntu_22.04.appx` |
+| `-InteractiveInstall` | Force interactive installers (no silent install) | For troubleshooting |
+| `-SkipAppInstall` | Skip additional app installations, WSL only | Minimal setup |
+| `-ForceReboot` | Immediately reboot when Windows features change | Skip reboot prompt |
 
-BIOS VT-x/AMD-V cannot be enabled by any Windows script. This script detects and reports it clearly.
+### What `-ConfigureRancher` Does
+- Sets container runtime to **dockerd (moby)** for Docker compatibility
+- Disables **Kubernetes** to reduce resource usage
+- Configures Rancher Desktop for typical development workflows
 
-Silent install is used when supported; if not, the script falls back to interactive so you can click through.
+## 🔧 Troubleshooting
 
-After Rancher Desktop installs, first launch may take a minute to initialize the VM; the script doesn’t block on that, but with -ConfigureRancher it will try rdctl if available.
+### Common Issues
 
-If you want, I can also add:
+#### Virtualization Not Enabled
+```
+❌ Error: CPU virtualization is not enabled in BIOS
+```
+**Solution**: Enter BIOS/UEFI settings and enable:
+- Intel: VT-x (Virtualization Technology)
+- AMD: AMD-V or SVM (Secure Virtual Machine)
 
-Creation of a sensible %UserProfile%\.wslconfig (CPU/RAM limits),
+#### Windows Version Too Old
+```
+❌ Error: Windows build 19041+ required
+```
+**Solution**: Update Windows 10 to version 2004+ or upgrade to Windows 11
 
-A first-run smoke test: docker run hello-world via Rancher Desktop (moby) to confirm Docker API is up.
+#### Script Execution Blocked
+```
+❌ Error: Execution of scripts is disabled
+```
+**Solution**: Run as Administrator and use:
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force
+```
+
+#### Rancher Desktop Won't Start
+1. Wait 1-2 minutes after installation (VM initialization takes time)
+2. Check Windows Event Viewer for Hyper-V errors
+3. Ensure no other VM software conflicts (VirtualBox, VMware)
+
+## 📁 File Structure
+
+```
+your-project-folder/
+├── setup-wsl.ps1              # Main setup script
+├── Rancher.Desktop-1.x.x.msi  # Rancher Desktop installer
+├── Ubuntu_22.04.appx          # (Optional) Offline Ubuntu package
+└── setup-log.txt              # Generated log file
+```
+
+## 🔄 What Happens During Setup
+
+1. **Pre-flight Check**: Validates Windows version, CPU virtualization, and BIOS settings
+2. **Feature Installation**: Enables WSL and VirtualMachinePlatform Windows features
+3. **Reboot Handling**: Automatically restarts if needed and resumes setup
+4. **WSL2 Setup**: Installs or updates WSL2 kernel and sets as default
+5. **Ubuntu Installation**: Downloads and installs Ubuntu distribution
+6. **Rancher Desktop**: Installs container management platform
+7. **Configuration**: Applies optimal settings for development use
+8. **Verification**: Confirms all components are working
+
+## 💡 Post-Installation
+
+### Verify Installation
+```powershell
+# Check WSL distributions
+wsl --list --verbose
+
+# Verify Rancher Desktop (after first launch)
+docker --version
+```
+
+### Next Steps
+1. Launch **Rancher Desktop** from Start Menu (first run takes ~2 minutes)
+2. Open **Ubuntu** terminal from Start Menu
+3. Test Docker functionality:
+   ```bash
+   docker run hello-world
+   ```
+
+## 🛠️ Advanced Configuration
+
+### Custom WSL Configuration
+Create `%USERPROFILE%\.wslconfig` for resource limits:
+```ini
+[wsl2]
+memory=8GB
+processors=4
+swap=2GB
+```
+
+### Rancher Desktop Settings
+Access via: Rancher Desktop → Preferences
+- **Container Runtime**: dockerd (moby) ✅
+- **Kubernetes**: Disabled for better performance
+- **WSL Integration**: Enable for your distributions
+
+## 🤝 Contributing
+
+Suggestions for additional features:
+- [ ] Automatic `.wslconfig` generation with sensible defaults
+- [ ] Post-installation Docker smoke test (`docker run hello-world`)
+- [ ] Integration with popular development tools (Git, Node.js, etc.)
+- [ ] Support for additional Linux distributions
+
+## 📝 License
+
+This project is open source. Use and modify as needed for your development setup.
+
+---
+
+**Need Help?** Open an issue with your setup details and error logs for assistance.
