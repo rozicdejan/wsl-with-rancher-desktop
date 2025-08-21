@@ -1,2 +1,41 @@
-# wsl-with-rancher-desktop
-Wsl and Rancher desktop installation
+# Windows WSL + Ubuntu + Rancher Desktop Setup Script
+
+This repository contains a **PowerShell automation script** (`setup-wsl.ps1`) to prepare a Windows PC for WSL2, install Ubuntu, and then install [Rancher Desktop](https://rancherdesktop.io/) from a local installer.  
+It is designed for **one-click setup**: detects prerequisites, enables Windows features, auto-resumes after reboot, and installs everything with clear status messages.
+
+---
+
+## Features
+
+✅ Detects if CPU & BIOS virtualization (VT-x / AMD-V) are enabled  
+✅ Enables required Windows features: **WSL** and **VirtualMachinePlatform**  
+✅ Installs or updates **WSL2 kernel**  
+✅ Installs **Ubuntu** (via `wsl --install` or offline `.appx` if provided)  
+✅ Installs **Rancher Desktop** (MSI/EXE in same folder)  
+✅ Supports **silent install** (falls back to interactive if not supported)  
+✅ Optional auto-config for Rancher Desktop: sets **dockerd (moby)** and disables **Kubernetes**  
+✅ Auto-resumes after reboot if system features required restart  
+✅ Generates a **log file** and end-of-run **summary popup**  
+
+---
+
+## Requirements
+
+- Windows 10 2004+ (build 19041) or Windows 11  
+- CPU with **Intel VT-x** or **AMD-V** virtualization support  
+- Virtualization **enabled in BIOS/UEFI**  
+- Administrator privileges to run the script  
+- Rancher Desktop installer (`.msi` or `.exe`) in the same folder as the script  
+
+---
+
+## Usage
+
+1. Clone/download this repo.  
+2. Place your **Rancher Desktop installer** (`Rancher.Desktop-x.y.z.msi` or `.exe`) in the same folder as `setup-wsl.ps1`.  
+3. Open **PowerShell as Administrator**.  
+4. Run:
+
+   ```powershell
+   Set-ExecutionPolicy Bypass -Scope Process -Force
+   .\setup-wsl.ps1 -ConfigureRancher
