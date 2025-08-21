@@ -34,7 +34,7 @@ Perfect for developers who want to quickly set up a Linux containerization envir
 
 ### Files Needed
 - This repository's `setup-wsl.ps1` script
-- Rancher Desktop installer (`.msi` or `.exe`) - [Download here](https://github.com/rancher-sandbox/rancher-desktop/releases) or [here-Mega](https://mega.nz/file/4gRFTIiK#kJ_FhoG_xHgo_rXxTMEAYkZfVwuQb_UMrM6A7GYnP3Q)
+- Rancher Desktop installer (`.msi` or `.exe`) - [Download here](https://github.com/rancher-sandbox/rancher-desktop/releases)
 
 > 📁 Place the Rancher Desktop installer in the same folder as the script
 
@@ -146,6 +146,99 @@ wsl --list --verbose
 # Verify Rancher Desktop (after first launch)
 docker --version
 ```
+
+## 🔍 System Diagnostic Commands
+
+Use these Windows commands to troubleshoot and verify your setup:
+
+### Core System Checks
+
+| Check | Command | Expected Output |
+|-------|---------|----------------|
+| **Windows Version** | `winver` | Opens dialog showing Windows 10 build 19041+ or Windows 11 |
+| **System Info** | `systeminfo \| findstr /C:"OS Version"` | Shows detailed Windows version info |
+| **PowerShell Version** | `$PSVersionTable.PSVersion` | Should be 5.1+ or 7+ |
+
+### Virtualization & Hardware
+
+| Check | Command | What to Look For |
+|-------|---------|------------------|
+| **CPU Virtualization** | `systeminfo \| findstr /C:"Hyper-V"` | Should show "Yes" for all Hyper-V requirements |
+| **Hardware DEP** | `bcdedit /enum {current} \| findstr nx` | Should show `nx OptIn` or `nx AlwaysOn` |
+| **Hyper-V Status** | `Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All` | State should be `Enabled` |
+| **VM Platform** | `Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform` | State should be `Enabled` |
+| **BIOS Virtualization** | `Get-ComputerInfo -Property HyperV*` | All HyperV properties should be `True` |
+
+### WSL Status & Configuration
+
+| Check | Command | Expected Result |
+|-------|---------|-----------------|
+| **WSL Installation** | `wsl --status` | Shows WSL version and default distribution |
+| **WSL Version** | `wsl --version` | Shows WSL version 2.x.x+ |
+| **List Distributions** | `wsl --list --verbose` | Shows Ubuntu running with WSL version 2 |
+| **Default Distribution** | `wsl --list --verbose \| findstr "\*"` | Ubuntu should have `*` (default) |
+| **WSL Feature Status** | `Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux` | State should be `Enabled` |
+
+### Docker & Container Runtime
+
+| Check | Command | Expected Output |
+|-------|---------|----------------|
+| **Docker Status** | `docker --version` | Shows Docker version (via Rancher Desktop) |
+| **Docker Service** | `docker info` | Shows Docker system info and status |
+| **Container Test** | `docker run hello-world` | Successfully pulls and runs test container |
+| **Docker Compose** | `docker-compose --version` | Shows Docker Compose version |
+| **Rancher Desktop CLI** | `rdctl --help` | Shows Rancher Desktop CLI commands |
+
+### Process & Service Checks
+
+| Check | Command | What It Shows |
+|-------|---------|---------------|
+| **WSL Processes** | `tasklist \| findstr wsl` | Shows running WSL processes |
+| **Rancher Processes** | `tasklist \| findstr "rancher\|Rancher"` | Shows Rancher Desktop processes |
+| **Hyper-V Services** | `Get-Service -Name "*hyper*" \| Where-Object {$_.Status -eq "Running"}` | Lists active Hyper-V services |
+| **Docker Desktop** | `tasklist \| findstr "Docker Desktop"` | Should be empty (we use Rancher instead) |
+
+### Network & Resource Usage
+
+| Check | Command | Purpose |
+|-------|---------|---------|
+| **WSL Memory Usage** | `wsl --shutdown` then `wsl` and `free -h` | Check available memory in WSL |
+| **Port Usage** | `netstat -an \| findstr :2375` | Docker daemon port (should be listening) |
+| **WSL IP Address** | `wsl hostname -I` | Shows WSL network IP |
+| **Network Adapters** | `Get-NetAdapter \| Where-Object {$_.Name -like "*WSL*"}` | Shows WSL network adapters |
+
+### Configuration Files
+
+| Check | Command | What It Does |
+|-------|---------|-------------|
+| **WSL Config** | `type %USERPROFILE%\.wslconfig` | Shows WSL memory/CPU limits (if exists) |
+| **Docker Config** | `type %USERPROFILE%\.docker\config.json` | Shows Docker client configuration |
+| **Rancher Settings** | `rdctl list-settings` | Shows current Rancher Desktop settings |
+
+### Quick Diagnostic Script
+
+For a comprehensive check, run this PowerShell one-liner:
+
+```powershell
+# Quick system diagnostic
+Write-Host "=== SYSTEM DIAGNOSTIC ===" -ForegroundColor Green
+Write-Host "Windows Version: " -NoNewline; (Get-ComputerInfo).WindowsProductName
+Write-Host "WSL Status: " -NoNewline; try { wsl --status } catch { "Not installed" }
+Write-Host "Docker Status: " -NoNewline; try { docker --version } catch { "Not available" }
+Write-Host "Hyper-V: " -NoNewline; (Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All).State
+Write-Host "VM Platform: " -NoNewline; (Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform).State
+Write-Host "WSL Feature: " -NoNewline; (Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux).State
+```
+
+### Troubleshooting Commands
+
+| Issue | Diagnostic Command | Fix Command |
+|-------|-------------------|-------------|
+| **WSL won't start** | `wsl --status` | `wsl --update` then `wsl --shutdown` |
+| **Docker not responding** | `docker info` | Restart Rancher Desktop application |
+| **Memory issues** | `wsl --shutdown` | Edit `%USERPROFILE%\.wslconfig` |
+| **Network problems** | `wsl --shutdown` then restart | `netsh winsock reset` (requires reboot) |
+| **Feature corruption** | `Get-WindowsOptionalFeature -Online \| Where-Object {$_.FeatureName -like "*hyper*"}` | Re-run setup script or manual feature reset |
 
 ### Next Steps
 1. Launch **Rancher Desktop** from Start Menu (first run takes ~2 minutes)
