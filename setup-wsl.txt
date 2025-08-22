@@ -1,0 +1,25 @@
+In a Command Prompt (%windir%\system32\cmd.exe) running as admin, run:
+	netsh winsock reset
+Reboot the computer.
+
+Temporary allow running scripts
+	
+	Set-ExecutionPolicy Bypass -Scope Process -Force
+
+You can enable these features via PowerShell:
+	dism.exe /Online /Enable-Feature /FeatureName:Microsoft-Windows-Subsystem-Linux /All /NoRestart
+	dism.exe /Online /Enable-Feature /FeatureName:VirtualMachinePlatform /All /NoRestart
+	dism.exe /Online /Enable-Feature /FeatureName:Microsoft-Hyper-V-All /All /NoRestart
+Hyper-V Conflicts: If you’re using VirtualBox or other virtualization software, disable Hyper-V by running the following:
+	
+	dism.exe /Online /Disable-Feature:Microsoft-Hyper-V-All
+	
+
+Then, in a Command Prompt (%windir%\system32\cmd.exe) not running as admin, run the following. It will have some pop-up windows requiring your admin username and password during the install, but the Cmd Prompt should not be in admin mode:
+	# Update your WSL system
+	wsl --update
+
+	# Install the latest version of Ubuntu
+	wsl --install
+
+	wsl --set-default-version 2
